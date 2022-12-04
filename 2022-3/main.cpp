@@ -87,7 +87,4 @@ int main(){
         prioritySum+=priorityOf(findBadge({a,b,c}));
     }
     cout<<prioritySum<<endl;
-    //cout<<findBadLetter(r,l)<<endl;
-
-    //for(auto [l,r]:lines)cout<<l<<" "<<r<<endl;
 }
