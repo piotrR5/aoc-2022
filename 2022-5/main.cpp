@@ -28,7 +28,7 @@ bool containsJustLetters(string s){
 void doAMove(vector<string>&s, tuple<int,int,int>m){
     auto [n,a,b]=m;
     int index=s[a-1].size()-n;
-    string temp(s[a-1].begin()+index, s[a-1].end());
+    string temp(s[a-1].rbegin()+index, s[a-1].rend());
     
     s[b-1]+=string(temp.rbegin(),temp.rend());
     s[a-1]=string(s[a-1].begin(), s[a-1].begin()+index);
