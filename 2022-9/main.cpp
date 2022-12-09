@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <vector>
 
+
 using namespace std;
 
 void doAMove(vector<pair<int, int>> &rope, char dir, int n,
