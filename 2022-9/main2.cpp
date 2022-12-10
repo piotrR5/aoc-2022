@@ -3,138 +3,128 @@
 #include <string>
 #include <unistd.h>
 #include <vector>
+#include <algorithm>
 
-#define SIZE 30
+#define SIZE 1000
 
 using namespace std;
 
-void align(pair<int,int>&h, pair<int,int>&t){
-    auto& [xh,yh]=h;
-    auto& [xt,yt]=t;
-    if(xt+1<xh){
-        xt++;
-        yt=yh;
+#define UP 4
+#define DOWN 5
+#define RIGHT 6
+#define LEFT 7
+
+void printRope(vector<pair<int,int>>rope){
+    system("clear");
+    auto [x,y]=rope[0];
+    vector<vector<bool>>g(SIZE, vector<bool>(SIZE,0));
+        for(auto [a,b]: rope){
+            g[a+SIZE/2][b+SIZE/2]=true;
+        }
+
+        g[x+SIZE/2][y+SIZE/2]=2;
+
+    for(auto i:g){
+        for(auto j:i){
+            cout<<(j==1?"#":".");
+            //cout<<(j==2?"O":".");
+        }
+        cout<<endl;
     }
-    if(xt-1>xh){
-        xt--;
-        yt=yh;
+    usleep(200000);
+}
+
+void move(vector<pair<int,int>>&rope, char dir){
+
+    switch(dir){
+        case 'U':
+            rope[0].second++;
+        break;
+
+        case 'D':
+            rope[0].second--;
+        break;
+            
+        case 'R':
+            rope[0].first++;
+        break;
+
+        case 'L':
+            rope[0].first--;
+        break;
     }
-    if(yt+1<yh){
-        yt++;
-        xt=xh;
-    }
-    if(yt-1>yh){
-        yt--;
-        yh=yt;
+
+    for(int i=1;i<10;i++){
+        pair<int,int>& f=rope[i];
+        pair<int,int>& p=rope[i-1];
+
+        if(f.second == p.second){
+            int dx=p.first-f.first;
+            if(abs(dx)>1){
+                f.first+=(dx < 0) ? -1 : (dx > 0);
+                // cout<<"first if\n";
+                // usleep(1000000);
+            }
+        }else if(f.first==p.first){
+            int dy=p.second-f.second;
+            if(abs(dy)>1){
+                f.second+=(dy < 0) ? -1 : (dy > 0);
+                // cout<<"second if\n";
+                // usleep(1000000);
+            }
+        }else {
+            pair<int,int> d({p.first-f.first, p.second-f.second});
+            pair<int,int> absd({abs(d.first), abs(d.second)});
+            if(absd.first>1 || absd.second>1){
+                // int sx=0, sy=0;
+                // if(d.first>0)sx=1;
+                // else if(d.first<0)sx=-1;
+                // if(d.second>0)sy=1;
+                // else if(d.second<0)sy=-1;
+
+                f.first+=(d.first < 0) ? -1 : (d.first > 0);
+                f.second+=(d.second < 0) ? -1 : (d.second > 0);
+                // cout<<"third if\n";
+                // usleep(1000000);
+            }
+            
+        }
     }
 }
 
-void doAMove(vector<pair<int,int>>&rope, char dir, int n,
-             vector<vector<bool>> &vis) {
-    int dx = 0, dy = 0;
-    switch (dir) {
-    case 'U':
-        dy = 1;
-        break;
-    case 'D':
-        dy = -1;
-        break;
-    case 'R':
-        dx = 1;
-        break;
-    case 'L':
-        dx = -1;
-    }
 
-    //cout << "[" << dir << " " << n << "]\n";
-
-    while (n--) {
-        for(auto [x,y]:rope){
-                //cout<<"["<<x<<", "<<y<<"]\n";
-        }
-
-        rope[0].first-=dy;
-        rope[0].second+=dx;
-
-        for(int i=1;i<10;i++){
-            align(rope[i-1], rope[i]);
-        }
-        vis[rope[9].first+SIZE/2][rope[9].second+SIZE/2]=true;
-
-        // for(int i=1;i<10;i++){
-            
-        //     //auto p = rope[i-1];
-        //     rope[i-1].first += dx;
-        //     rope[i-1].second += dy;
-        //     vis[rope[9].first + 500][rope[9].second + 500] = true;
-            
-        //         if (rope[i].first + 1 < rope[i-1].first) {
-        //             rope[i].first++;
-        //             rope[i].second=rope[i-1].second;
-        //             //rope[i] = p;
-        //         }
-        //         if (rope[i].first - 1 > rope[i-1].first) {
-        //             //rope[i] = p;
-        //             rope[i].first--;
-        //             rope[i].second=rope[i-1].second;
-        //         }
-        //         if (rope[i].second + 1 < rope[i-1].second) {
-        //             //rope[i] = p;
-        //             rope[i].second++;
-        //             rope[i].first=rope[i-1].first;
-        //         }
-        //         if (rope[i].second - 1 > rope[i-1].second) {
-        //             //rope[i] = p;
-        //             rope[i].second--;
-        //             rope[i].first=rope[i-1].first;
-        //         }
-        //         //p=rope[i];
-        // }
-        
-        //vis[t.first + 500][t.second + 500] = true;
-    }
-}
 
 int main(int argc, char *argv[]) {
     fstream file;
-    file.open("test.txt");
+    file.open("input.txt");
     string line;
-    vector<pair<int, int>> rope;
-    rope.push_back({0, 0});
-    rope.push_back({0, 0});
-    rope.push_back({0, 0});
-    rope.push_back({0, 0});
-    rope.push_back({0, 0});
-    rope.push_back({0, 0});
-    rope.push_back({0, 0});
-    rope.push_back({0, 0});
-    rope.push_back({0, 0});
-    rope.push_back({0, 0});
+    vector<pair<int, int>> rope(10, pair<int,int>({0,0}));
     vector<vector<bool>> vis(SIZE, vector<bool>(SIZE, 0));
 
     char dir;
     int n;
 
-    while (file >> dir >> n) {
-            cout<<"["<<dir<<" "<<n<<"]\n";
-            doAMove(rope, dir, n, vis); 
-            
-            vector<vector<bool>> deb(SIZE, vector<bool>(SIZE, 0));
-            for(auto [a,b]:rope)deb[a+SIZE/2][b+SIZE/2]=1;
-            for(auto i:deb){
-                for(auto j:i)cout<<(j? "#": ".");
-                cout<<endl;
-            }
-        
+    //cout<<"["<<rope[9].first<<" "<<rope[9].second<<"]\n";
+    rope[9].first=0;
+    rope[9].second=0;
+
+
+    while(file>>dir>>n){
+        cout<<"["<<dir<<" "<<n<<"]\n";
+        for(int i=0;i<n;i++){
+            move(rope, dir);
+            //printRope(rope);
+            vis[rope[9].first+SIZE/2][rope[9].second+SIZE/2]=1;
+        }
+        cout<<"["<<rope[9].first<<" "<<rope[9].second<<"]\n";
     }
 
-    int c = 0;
-    for (auto &i : vis) {
-        for (auto j : i) {
-            cout<<(j ? 'X':'.');
-            c += j;
-        }
-        cout<<endl;
+    int c=0;
+    for(auto i:vis){
+        for(auto j:i)c+=j;
     }
-    cout << c << endl;
+
+    cout<<c<<endl;
+
+    
 }
