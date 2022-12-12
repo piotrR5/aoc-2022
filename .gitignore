@@ -1,3 +1,4 @@
 *.out
 .directory
 .vscode
+core.*
