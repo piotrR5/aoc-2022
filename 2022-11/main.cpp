@@ -3,25 +3,29 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 using namespace std;
 
-#define M 2*3*5*7*11*13*17*19*23
+uint64_t M=2*3*5*7*11*13*17*19*23;
 
 uint64_t modAdd(uint64_t a, uint64_t b){
-    return ((a) + (b%M)) %M;
+    //return a+b;
+    return ((a%M) + (b%M)) %M;
 }
 
 uint64_t modMult(uint64_t a, uint64_t b){
-    return ((a)* (b%M)) %M;
+    //return a*b;
+    return ((a%M)* (b%M)) %M;
 }
 
 uint64_t modPow(uint64_t a){
-    return ((a)* (a%M)) %M;
+    //return a*a;
+    return ((a%M)* (a%M)) %M;
 }
 
 struct monke{
-    vector<int>items;
+    vector<uint64_t>items;
     char operation;
     int operand;
     int test;
@@ -44,15 +48,13 @@ struct monke{
 
 vector<uint64_t>extractNums(string nums){
     int i;
-    //cout<<nums<<endl;
     while(nums.find(",")!=string::npos){
         i=nums.find(",");
         nums.erase(i, 1);
     }
-    //cout<<nums<<endl;
     vector<uint64_t>returned;
 
-    int n;
+    uint64_t n;
 
     stringstream ss;
     ss<<nums;
@@ -62,41 +64,43 @@ vector<uint64_t>extractNums(string nums){
     return returned;
 }
 
-void round(vector<monke>&vec, vector<int>&monkeBuisness){
-
+void round(vector<monke>&vec, vector<uint64_t>&monkeBuisness){
     for(int k=0;k<vec.size();k++){
         auto& m=vec[k];
-        m.printMonke();
         monkeBuisness[k]+=m.items.size();
-        for(int i=0;i<m.items.size();i++){
+    
+        while(m.items.empty()==false){
+            auto& i=m.items[0];
+
             switch(m.operation){
                 case '^':
-                m.items[i]=modPow(m.items[i]);
+                i=modPow(i);
                 break;
                 case '*':
-                m.items[i]=modMult(m.items[i], m.operand);
+                i=modMult(i, m.operand);
                 break;
                 case '+':
-                m.items[i]=modAdd(m.items[i], m.operand);
+                i=modAdd(i, m.operand);
             }
-            if(m.items[i]%m.test==0){
-                vec[m.ifTrue].items.push_back(m.items[i]);
+            //i/=3;
+
+            if(i%m.test==0){
+                vec[m.ifTrue].items.push_back(i);
             }else{
-                vec[m.ifFalse].items.push_back(m.items[i]);
+                vec[m.ifFalse].items.push_back(i);
             }
-
-            m.items.erase(m.items.begin()+i, m.items.begin()+i+1);
-
+            m.items.erase(m.items.begin());
         }
     }
-    // for(auto& m:vec){
-        
-    // }
+
+    for(auto i:vec){
+        i.printMonke();
+    }
 }
 
 int main(){
     fstream file;
-    file.open("test.txt");
+    file.open("input.txt");
     string line;
 
     vector<monke>monkes;
@@ -159,24 +163,19 @@ int main(){
         }
     }
 
-    // for(auto i:monkes){
-    //     i.printMonke();
-    // }
+    vector<uint64_t>monkeB(monkes.size(), 0);
 
-    vector<int>monkeB(monkes.size(), 0);
-
-    for(int i=1;i<21;i++){
+    for(int i=1;i<10001;i++){
         cout<<"ROUND "<<i<<"!!!\n";
-        
-        //for(auto j:monkes)j.printMonke();
-
         round(monkes, monkeB);
-
     }
 
     for(auto i:monkes)i.printMonke();
 
+    sort(monkeB.begin(), monkeB.end());
+
     for(auto i:monkeB)cout<<i<<" ";
     cout<<endl;
+    cout<<monkeB[monkeB.size()-2]*monkeB[monkeB.size()-1]<<endl;
 
 }
